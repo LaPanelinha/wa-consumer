@@ -52,7 +52,6 @@ class Message {
     lateinit var buttons: List<Button>
     var listResponse: Row? = null
     var list: MessageList? = null
-    var contentDecrypted: String? = null
 }
 
 class MessageList {
