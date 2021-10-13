@@ -19,6 +19,7 @@ class CommandFactory {
             CommandType.PING -> PingCommand(message, service)
             CommandType.HELP -> HelpCommand(commandPrefix, message, service)
             CommandType.STICKER -> StickerCommand(message, args, service)
+            CommandType.MESSAGE_TO -> MessageToCommand(args, service)
         }
     }
 
