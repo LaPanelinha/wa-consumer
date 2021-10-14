@@ -5,6 +5,7 @@ import dev.gabrielsancho.wpconsumer.domain.Message
 import dev.gabrielsancho.wpconsumer.domain.MessageType
 import dev.gabrielsancho.wpconsumer.domain.StickerMetadata
 import dev.gabrielsancho.wpconsumer.exception.CommandNotFoundException
+import dev.gabrielsancho.wpconsumer.facade.WaDecryptIntegrationFacade
 import dev.gabrielsancho.wpconsumer.facade.WhatsappIntegrationFacade
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service
 @Service
 class WhatsappService(
         private val wppFacade: WhatsappIntegrationFacade,
+        private val decryptFacade: WaDecryptIntegrationFacade,
         private val commandFactory: CommandFactory
 ) {
 
@@ -27,6 +29,8 @@ class WhatsappService(
             wppFacade.sendStickerFromUrl(to, url, metadata)
 
     fun getMessageById(messageId: String) = wppFacade.getMessageById(messageId)
+
+    fun decryptMedia(message: Message) = decryptFacade.decryptMedia(message)
 
     fun handleMessage(message: Message) = when (message.type) {
         MessageType.TEXT -> {

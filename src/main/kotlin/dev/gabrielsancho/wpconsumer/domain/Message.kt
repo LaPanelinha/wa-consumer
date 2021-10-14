@@ -43,7 +43,7 @@ class Message {
     lateinit var chat: Chat
     lateinit var chatId: String
     lateinit var author: String
-    lateinit var deprecatedMms3Url: String
+    var deprecatedMms3Url: String? = null
     var quotedMsg: Message? = null
     var quotedMsgObj: Message? = null
     lateinit var shareDuration: Number
@@ -52,6 +52,8 @@ class Message {
     lateinit var buttons: List<Button>
     var listResponse: Row? = null
     var list: MessageList? = null
+    var mediaKey: String? = null
+    var size: Long? = null
 }
 
 class MessageList {
