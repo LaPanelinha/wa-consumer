@@ -1,33 +1,44 @@
 package dev.gabrielsancho.wpconsumer.command
 
-import com.beust.jcommander.JCommander
 import com.beust.jcommander.Parameter
 import dev.gabrielsancho.wpconsumer.domain.CropPosition
 import dev.gabrielsancho.wpconsumer.domain.Message
 import dev.gabrielsancho.wpconsumer.domain.MessageType
 import dev.gabrielsancho.wpconsumer.domain.StickerMetadata
+import dev.gabrielsancho.wpconsumer.extension.text
 import dev.gabrielsancho.wpconsumer.service.WhatsappService
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 import java.net.MalformedURLException
 import java.net.URL
 
+@Component
 class StickerCommand(
-        private val message: Message,
-        private val args: List<String>,
+        @Value("\${wa.command.prefix}") val commandPrefix: String,
         private val service: WhatsappService
-) : Command() {
-    override fun execute() {
+) : Command<StickerCommand.StickerArguments>() {
+    override val alias = CommandAlias.STICKER_COMMAND
+
+    override fun execute(message: Message) {
+        val args = StickerArguments().apply { loadArguments(message.text) }
+
+        val url = args.url
+        val metadata = metadataFromArgs(args)
+
         when (message.type) {
-            MessageType.IMAGE -> sendImage(message)
+            MessageType.IMAGE -> sendImage(message, metadata)
             MessageType.TEXT -> {
-                val firstArg = args.getOrElse(0) { "" }
-                if (isValidUrl(firstArg))
-                    sendUrl(message, firstArg)
+                if (url != null && isValidUrl(args.url))
+                    sendUrl(message, url, metadata)
                 if (hasQuotedImage(message))
-                    sendQuotedMessage(message, message.quotedMsgObj!!)
+                    sendQuotedMessage(message, message.quotedMsgObj!!, metadata)
             }
-            else -> {
-            }
+            else -> Unit
         }
+    }
+
+    private fun sendUrl(message: Message, url: String, metadata: StickerMetadata) {
+        service.sendStickerFromUrl(message.from, url, metadata)
     }
 
     private fun isValidUrl(str: String?) = try {
@@ -40,53 +51,41 @@ class StickerCommand(
     private fun hasQuotedImage(message: Message) =
             message.quotedMsgObj != null && message.quotedMsgObj?.type == MessageType.IMAGE
 
-    private fun sendImage(message: Message) {
+    private fun sendImage(message: Message, metadata: StickerMetadata) {
         val body = service.decryptMedia(message) ?: message.body
-        service.sendImageAsSticker(message.from, body, metadataFromArgs())
+        service.sendImageAsSticker(message.from, body, metadata)
     }
 
-    private fun sendQuotedMessage(message: Message, quoted: Message) {
+    private fun sendQuotedMessage(message: Message, quoted: Message, metadata: StickerMetadata) {
         val body = service.decryptMedia(quoted) ?: quoted.body
-        service.sendImageAsSticker(message.from, body, metadataFromArgs())
+        service.sendImageAsSticker(message.from, body, metadata)
     }
 
-    private fun sendUrl(message: Message, url: String) {
-        service.sendStickerFromUrl(message.from, url, metadataFromArgs())
-    }
+    private fun metadataFromArgs(args: StickerCommand.StickerArguments) = StickerMetadata(
+            args.author,
+            CropPosition.fromString(args.cropPosition),
+            args.keepScale,
+            args.pack,
+            args.circle
+    )
 
-    override fun canExecute(): Boolean {
-        if (message.type == MessageType.TEXT)
-            return isValidUrl(args.getOrElse(0) { "" }) || hasQuotedImage(message)
-        return message.type == MessageType.IMAGE
-    }
+    inner class StickerArguments : CommandArguments(commandPrefix, alias) {
+        @Parameter(description = "Url da imagem")
+        var url: String? = null
 
-    private fun metadataFromArgs(): StickerMetadata {
-        val argsObject = ArgsObject()
-        JCommander.newBuilder()
-                .addObject(argsObject)
-                .build()
-                .parse(*args.toTypedArray())
-        return argsObject.createStickerMetadata()
-    }
-
-    override fun getCantExecuteMessage() = "Imagem inválida."
-
-    class ArgsObject {
-        @Parameter(names = ["-a", "--author"], description = "Autor da figurinha ( default: Voldemort' )")
+        @Parameter(names = ["--author", "-a"], description = "Autor da figurinha")
         var author: String? = "Voldemort"
 
-        @Parameter(names = ["-r", "--crop-position"], description = "Posição para cortar a figurinha ( default: null )")
+        @Parameter(names = ["--crop-position", "-c"], description = "Posição para cortar a figurinha (top, right top, right, right bottom, bottom, left bottom, left, left top, center)")
         var cropPosition: String? = null
 
-        @Parameter(names = ["-k", "--keep-scale"], description = "Mantém a escala da figurinha ( default: false )")
+        @Parameter(names = ["--keep-scale", "-k"], description = "Mantem a escala da figurinha")
         var keepScale: Boolean = false
 
-        @Parameter(names = ["-p", "--pack"], description = "Nome do pacote de figurinhas ( default: Voldemort )")
+        @Parameter(names = ["--pack", "-p"], description = "Nome do pacote de figurinhas")
         var pack: String? = "Voldemort"
 
-        @Parameter(names = ["-c", "--circle"], description = "Figurinha circular ( default: false )")
+        @Parameter(names = ["--circle", "-ci"], description = "Figurinha circular")
         var circle: Boolean? = false
-
-        fun createStickerMetadata() = StickerMetadata(author, CropPosition.fromString(cropPosition), keepScale, pack, circle)
     }
 }

@@ -1,4 +1,4 @@
-package dev.gabrielsancho.wpconsumer.facade
+package dev.gabrielsancho.wpconsumer.integration
 
 import dev.gabrielsancho.wpconsumer.domain.Message
 import dev.gabrielsancho.wpconsumer.domain.StickerMetadata
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 @Component
-class WhatsappIntegrationFacade(
+class WAIntegration(
         private val restTemplate: RestTemplate
 ) {
     @Value("\${wa.api.url}")

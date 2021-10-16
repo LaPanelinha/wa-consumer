@@ -1,18 +1,26 @@
 package dev.gabrielsancho.wpconsumer.command
 
 import dev.gabrielsancho.wpconsumer.domain.Message
+import dev.gabrielsancho.wpconsumer.extension.text
 import dev.gabrielsancho.wpconsumer.service.WhatsappService
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 
+@Component
 class PingCommand(
-        private val message: Message,
-        private val service: WhatsappService
-) : Command() {
+        @Value("\${wa.command.prefix}") val commandPrefix: String,
+        val service: WhatsappService
+) : Command<PingCommand.PingArguments>() {
+    override val alias = CommandAlias.PING_COMMAND
 
-    override fun execute() {
-        service.reply(message.from, message.id, "PONG!")
+    override fun execute(message: Message) {
+        PingArguments().loadArguments(message.text)
+        sendPong(message)
     }
 
-    override fun canExecute() = true
+    private fun sendPong(message: Message) {
+        service.reply(message.from, message.id, "Pong!")
+    }
 
-    override fun getCantExecuteMessage() = ""
+    inner class PingArguments : CommandArguments(commandPrefix, alias)
 }

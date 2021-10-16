@@ -1,7 +1,10 @@
 package dev.gabrielsancho.wpconsumer.command
 
-abstract class Command {
-    abstract fun execute()
-    abstract fun canExecute(): Boolean
-    abstract fun getCantExecuteMessage(): String
+import dev.gabrielsancho.wpconsumer.domain.Message
+
+
+abstract class Command<out T : CommandArguments> {
+    abstract val alias: CommandAlias
+
+    abstract fun execute(message: Message)
 }

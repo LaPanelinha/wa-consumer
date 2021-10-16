@@ -1,4 +1,4 @@
-package dev.gabrielsancho.wpconsumer.facade
+package dev.gabrielsancho.wpconsumer.integration
 
 import dev.gabrielsancho.wpconsumer.domain.Message
 import dev.gabrielsancho.wpconsumer.dto.whatsapp.ArgsDTO
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 @Component
-class WaDecryptIntegrationFacade(
+class WaDecryptIntegration(
         private val restTemplate: RestTemplate
 ) {
     @Value("\${wa.decrypt.url}")
