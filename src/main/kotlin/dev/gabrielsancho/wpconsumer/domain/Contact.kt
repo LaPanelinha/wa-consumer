@@ -28,9 +28,9 @@ class Contact {
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ProfilePicture {
-    lateinit var eurl: String
-    lateinit var id: String
-    lateinit var img: String
-    lateinit var imgFull: String
-    lateinit var tag: String
+    var eurl: String? = null
+    var id: String? = null
+    var img: String? = null
+    var imgFull: String? = null
+    var tag: String? = null
 }
