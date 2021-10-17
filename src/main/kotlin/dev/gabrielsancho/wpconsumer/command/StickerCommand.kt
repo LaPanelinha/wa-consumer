@@ -52,12 +52,12 @@ class StickerCommand(
             message.quotedMsgObj != null && message.quotedMsgObj?.type == MessageType.IMAGE
 
     private fun sendImage(message: Message, metadata: StickerMetadata) {
-        val body = service.decryptMedia(message) ?: message.body
+        val body = service.decryptMedia(message.id) ?: message.body
         service.sendImageAsSticker(message.from, body, metadata)
     }
 
     private fun sendQuotedMessage(message: Message, quoted: Message, metadata: StickerMetadata) {
-        val body = service.decryptMedia(quoted) ?: quoted.body
+        val body = service.decryptMedia(quoted.id) ?: quoted.body
         service.sendImageAsSticker(message.from, body, metadata)
     }
 

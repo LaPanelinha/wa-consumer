@@ -36,7 +36,7 @@ class WAIntegration(
 
     fun decryptMedia(id: String) = postForObject(
             "/decryptMedia",
-            NativeDecryptMediaDTO(id),
+            DecryptMediaDTO(id),
             typeReference<ResponseDTO<String>>()
     )
 
