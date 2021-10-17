@@ -34,6 +34,12 @@ class WAIntegration(
             typeReference<ResponseDTO<Message>>()
     )
 
+    fun decryptMedia(id: String) = postForObject(
+            "/decryptMedia",
+            NativeDecryptMediaDTO(id),
+            typeReference<ResponseDTO<String>>()
+    )
+
     private fun postForLocation(path: String, body: Any) {
         restTemplate.postForLocation("$baseUrl$path", ArgsDTO(body))
     }
