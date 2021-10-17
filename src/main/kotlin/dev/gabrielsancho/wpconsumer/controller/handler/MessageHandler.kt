@@ -4,7 +4,9 @@ import dev.gabrielsancho.wpconsumer.command.CommandFactory
 import dev.gabrielsancho.wpconsumer.domain.Message
 import dev.gabrielsancho.wpconsumer.exception.CommandNotFoundException
 import dev.gabrielsancho.wpconsumer.exception.HelpRequestedException
+import dev.gabrielsancho.wpconsumer.extension.WaFormat
 import dev.gabrielsancho.wpconsumer.extension.text
+import dev.gabrielsancho.wpconsumer.extension.toString
 import dev.gabrielsancho.wpconsumer.service.WhatsappService
 import org.springframework.stereotype.Component
 
@@ -24,7 +26,7 @@ class MessageHandler(
 
             command.execute(message)
         } catch (ex: HelpRequestedException) {
-            service.reply(message.from, message.id, "```${ex.help}```")
+            service.reply(message.from, message.id, ex.help.toString(WaFormat.MONOSPACE))
         } catch (ex: CommandNotFoundException) {
             // pass
         }
