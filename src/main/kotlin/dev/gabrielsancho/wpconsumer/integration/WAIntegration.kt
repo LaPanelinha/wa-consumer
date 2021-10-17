@@ -28,10 +28,19 @@ class WAIntegration(
     fun sendStickerFromUrl(to: String, url: String, metadata: StickerMetadata? = null) =
             postForLocation("/sendImageAsSticker", StickerFromUrlDTO(to, url, metadata))
 
+    fun sendMp4AsSticker(to: String, mp4: String, metadata: StickerMetadata) =
+            postForLocation("/sendMp4AsSticker", Mp4AsStickerDTO(to, mp4, metadata))
+
     fun getMessageById(id: String) = postForObject(
             "/getMessageById",
             MessageByIdDTO(id),
             typeReference<ResponseDTO<Message>>()
+    )
+
+    fun decryptMedia(id: String) = postForObject(
+            "/decryptMedia",
+            DecryptMediaDTO(id),
+            typeReference<ResponseDTO<String>>()
     )
 
     private fun postForLocation(path: String, body: Any) {

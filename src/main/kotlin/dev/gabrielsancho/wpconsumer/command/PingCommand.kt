@@ -19,7 +19,7 @@ class PingCommand(
     }
 
     private fun sendPong(message: Message) {
-        service.reply(message.from, message.id, "Pong!")
+        service.sendText(message.from, "Pong!")
     }
 
     inner class PingArguments : CommandArguments(commandPrefix, alias)

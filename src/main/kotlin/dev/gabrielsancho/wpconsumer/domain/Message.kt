@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Message {
-    lateinit var selectedButtonId: String
+    var selectedButtonId: String? = null
     lateinit var id: String
     lateinit var body: String
     lateinit var type: MessageType
