@@ -26,19 +26,31 @@ class StickerCommand(
         val metadata = metadataFromArgs(args)
 
         when (message.type) {
-            MessageType.IMAGE -> sendImage(message, metadata)
+            MessageType.IMAGE, MessageType.VIDEO ->
+                sendMediaSticker(message.from, message, metadata)
             MessageType.TEXT -> {
-                if (url != null && isValidUrl(args.url))
-                    sendUrl(message, url, metadata)
-                if (hasQuotedImage(message))
-                    sendQuotedMessage(message, message.quotedMsgObj!!, metadata)
+                if (hasQuotedMedia(message))
+                    sendMediaSticker(message.from, message.quotedMsgObj!!, metadata)
+
+                if (url != null)
+                    sendUrlSticker(message.from, url, metadata)
             }
             else -> Unit
         }
     }
 
-    private fun sendUrl(message: Message, url: String, metadata: StickerMetadata) {
-        service.sendStickerFromUrl(message.from, url, metadata)
+    private fun sendMediaSticker(to: String, message: Message, metadata: StickerMetadata) {
+        val body = service.decryptMedia(message.id) ?: message.body
+
+        if (message.type == MessageType.VIDEO)
+            service.sendMp4AsSticker(to, body, metadata)
+        if (message.type == MessageType.IMAGE)
+            service.sendImageAsSticker(to, body, metadata)
+    }
+
+    private fun sendUrlSticker(to: String, url: String, metadata: StickerMetadata) {
+        if (isValidUrl(url))
+            service.sendStickerFromUrl(to, url, metadata)
     }
 
     private fun isValidUrl(str: String?) = try {
@@ -48,18 +60,10 @@ class StickerCommand(
         false
     }
 
-    private fun hasQuotedImage(message: Message) =
-            message.quotedMsgObj != null && message.quotedMsgObj?.type == MessageType.IMAGE
-
-    private fun sendImage(message: Message, metadata: StickerMetadata) {
-        val body = service.decryptMedia(message.id) ?: message.body
-        service.sendImageAsSticker(message.from, body, metadata)
-    }
-
-    private fun sendQuotedMessage(message: Message, quoted: Message, metadata: StickerMetadata) {
-        val body = service.decryptMedia(quoted.id) ?: quoted.body
-        service.sendImageAsSticker(message.from, body, metadata)
-    }
+    private fun hasQuotedMedia(message: Message) =
+            message.quotedMsgObj != null &&
+                    (message.quotedMsgObj?.type == MessageType.IMAGE ||
+                            message.quotedMsgObj?.type == MessageType.VIDEO)
 
     private fun metadataFromArgs(args: StickerCommand.StickerArguments) = StickerMetadata(
             args.author,

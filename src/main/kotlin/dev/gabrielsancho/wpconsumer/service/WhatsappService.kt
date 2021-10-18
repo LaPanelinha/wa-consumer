@@ -17,6 +17,9 @@ class WhatsappService(
     fun sendStickerFromUrl(to: String, url: String, metadata: StickerMetadata?) =
             waIntegration.sendStickerFromUrl(to, url, metadata)
 
+    fun sendMp4AsSticker(to: String, mp4: String, metadata: StickerMetadata) =
+            waIntegration.sendMp4AsSticker(to, mp4, metadata)
+
     fun getMessageById(messageId: String) = waIntegration.getMessageById(messageId)
 
     fun decryptMedia(messageId: String) = waIntegration.decryptMedia(messageId)
