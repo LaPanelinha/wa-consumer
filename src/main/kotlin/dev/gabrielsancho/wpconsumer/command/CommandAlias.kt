@@ -7,7 +7,8 @@ enum class CommandAlias(vararg val values: String) {
     COMMANDS_COMMAND("help", "h"),
     STICKER_COMMAND("sticker", "figurinha", "f"),
     PING_COMMAND("ping"),
-    SAY_COMMAND("say");
+    SAY_COMMAND("say"),
+    ALL_COMMAND("all");
 
     fun prettyName() = name
             .split("_")

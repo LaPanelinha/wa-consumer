@@ -37,6 +37,9 @@ class WAIntegration(
             typeReference<ResponseDTO<Message>>()
     )
 
+    fun sendReplyWithMentions(to: String, content: String, replyToId: String) =
+        postForLocation("/sendReplyWithMentions", ReplyWithMentionsDTO(to, content, replyToId))
+
     fun decryptMedia(id: String) = postForObject(
             "/decryptMedia",
             DecryptMediaDTO(id),
