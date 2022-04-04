@@ -1,6 +1,7 @@
 package dev.gabrielsancho.wpconsumer.service
 
 import dev.gabrielsancho.wpconsumer.domain.StickerMetadata
+import dev.gabrielsancho.wpconsumer.dto.whatsapp.SimulateTypingDTO
 import dev.gabrielsancho.wpconsumer.integration.WAIntegration
 import org.springframework.stereotype.Service
 
@@ -21,6 +22,9 @@ class WhatsappService(
         waIntegration.sendMp4AsSticker(to, mp4, metadata)
 
     fun getMessageById(messageId: String) = waIntegration.getMessageById(messageId)
+
+    fun simulateTyping(to: String, on: Boolean) =
+        waIntegration.simulateTyping(SimulateTypingDTO(to, on))
 
     fun sendReplyWithMentions(to: String, message: String, replyToId: String) =
         waIntegration.sendReplyWithMentions(to, message, replyToId)

@@ -11,46 +11,53 @@ import org.springframework.web.client.RestTemplate
 
 @Component
 class WAIntegration(
-        private val restTemplate: RestTemplate
+    private val restTemplate: RestTemplate
 ) {
     @Value("\${wa.api.url}")
     lateinit var baseUrl: String
 
     fun sendText(to: String, message: String) =
-            postForLocation("/sendText", SendTextDTO(to, message))
+        postForLocation("/sendText", SendTextDTO(to, message))
 
     fun reply(to: String, messageId: String, message: String, sendSeen: Boolean) =
-            postForLocation("/reply", ReplyDTO(to, message, messageId, sendSeen))
+        postForLocation("/reply", ReplyDTO(to, message, messageId, sendSeen))
 
     fun sendImageAsSticker(to: String, image: String, metadata: StickerMetadata? = null) =
-            postForLocation("/sendImageAsSticker", ImageAsStickerDTO(to, image, metadata))
+        postForLocation("/sendImageAsSticker", ImageAsStickerDTO(to, image, metadata))
 
     fun sendStickerFromUrl(to: String, url: String, metadata: StickerMetadata? = null) =
-            postForLocation("/sendImageAsSticker", StickerFromUrlDTO(to, url, metadata))
+        postForLocation("/sendImageAsSticker", StickerFromUrlDTO(to, url, metadata))
 
     fun sendMp4AsSticker(to: String, mp4: String, metadata: StickerMetadata) =
-            postForLocation("/sendMp4AsSticker", Mp4AsStickerDTO(to, mp4, metadata))
+        postForLocation("/sendMp4AsSticker", Mp4AsStickerDTO(to, mp4, metadata))
 
     fun getMessageById(id: String) = postForObject(
-            "/getMessageById",
-            MessageByIdDTO(id),
-            typeReference<ResponseDTO<Message>>()
+        "/getMessageById",
+        MessageByIdDTO(id),
+        typeReference<ResponseDTO<Message>>()
     )
 
     fun sendReplyWithMentions(to: String, content: String, replyToId: String) =
         postForLocation("/sendReplyWithMentions", ReplyWithMentionsDTO(to, content, replyToId))
 
     fun decryptMedia(id: String) = postForObject(
-            "/decryptMedia",
-            DecryptMediaDTO(id),
-            typeReference<ResponseDTO<String>>()
+        "/decryptMedia",
+        DecryptMediaDTO(id),
+        typeReference<ResponseDTO<String>>()
     )
+
+    fun simulateTyping(simulateTypingDTO: SimulateTypingDTO) =
+        postForLocation("/simulateTyping", simulateTypingDTO)
 
     private fun postForLocation(path: String, body: Any) {
         restTemplate.postForLocation("$baseUrl$path", ArgsDTO(body))
     }
 
-    private fun <R : ResponseDTO<T>, T> postForObject(path: String, body: Any, responseType: ParameterizedTypeReference<R>): T? {
+    private fun <R : ResponseDTO<T>, T> postForObject(
+        path: String,
+        body: Any,
+        responseType: ParameterizedTypeReference<R>
+    ): T? {
         val request = RequestEntity.post("$baseUrl$path").body(ArgsDTO(body))
         return restTemplate.exchange(request, responseType).body?.response
     }
