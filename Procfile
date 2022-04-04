@@ -1,1 +1,0 @@
-web: java -jar target/wp-consumer-0.0.1-SNAPSHOT.jar --server.port=$PORT
