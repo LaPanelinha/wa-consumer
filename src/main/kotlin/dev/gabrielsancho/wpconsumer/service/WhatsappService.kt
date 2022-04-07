@@ -26,6 +26,8 @@ class WhatsappService(
     fun simulateTyping(to: String, on: Boolean) =
         waIntegration.simulateTyping(SimulateTypingDTO(to, on))
 
+    fun react(messageId: String, emoji: String) = waIntegration.react(messageId, emoji)
+
     fun sendReplyWithMentions(to: String, message: String, replyToId: String) =
         waIntegration.sendReplyWithMentions(to, message, replyToId)
 

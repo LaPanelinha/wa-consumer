@@ -43,6 +43,9 @@ class WAIntegration(
     fun sendMp4AsSticker(to: String, mp4: String, metadata: StickerMetadata) =
         postForLocation("/sendMp4AsSticker", Mp4AsStickerDTO(to, mp4, metadata))
 
+    fun react(messageId: String, emoji: String) =
+        postForLocation("/react", ReactDTO(messageId, emoji))
+
     fun getMessageById(id: String) = postForObject(
         "/getMessageById",
         MessageByIdDTO(id),
