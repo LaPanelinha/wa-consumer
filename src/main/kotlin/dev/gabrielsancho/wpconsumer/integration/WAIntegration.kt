@@ -5,7 +5,9 @@ import dev.gabrielsancho.wpconsumer.domain.StickerMetadata
 import dev.gabrielsancho.wpconsumer.dto.whatsapp.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
@@ -19,6 +21,12 @@ class WAIntegration(
 
     @Value("\${wa.api.key}")
     lateinit var apiKey: String
+
+    private val httpHeaders: HttpHeaders
+        get() = HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+            add("api_key", apiKey)
+        }
 
     fun sendText(to: String, message: String) =
         postForLocation("/sendText", SendTextDTO(to, message))
@@ -54,7 +62,8 @@ class WAIntegration(
         postForLocation("/simulateTyping", simulateTypingDTO)
 
     private fun postForLocation(path: String, body: Any) {
-        restTemplate.postForLocation("$baseUrl$path", ArgsDTO(body))
+        val requestEntity = HttpEntity(ArgsDTO(body), httpHeaders)
+        restTemplate.postForLocation("$baseUrl$path", requestEntity)
     }
 
     private fun <R : ResponseDTO<T>, T> postForObject(
@@ -62,12 +71,9 @@ class WAIntegration(
         body: Any,
         responseType: ParameterizedTypeReference<R>
     ): T? {
-        val headers = HttpHeaders().apply {
-            add("api_key", apiKey)
-        }
-
-        val request = RequestEntity.post("$baseUrl$path")
-            .headers(headers)
+        val request = RequestEntity
+            .post("$baseUrl$path")
+            .headers(httpHeaders)
             .body(ArgsDTO(body))
 
         return restTemplate.exchange(request, responseType).body?.response
