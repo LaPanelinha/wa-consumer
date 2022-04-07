@@ -5,6 +5,7 @@ import dev.gabrielsancho.wpconsumer.domain.StickerMetadata
 import dev.gabrielsancho.wpconsumer.dto.whatsapp.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpHeaders
 import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
@@ -15,6 +16,9 @@ class WAIntegration(
 ) {
     @Value("\${wa.api.url}")
     lateinit var baseUrl: String
+
+    @Value("\${wa.api.key}")
+    lateinit var apiKey: String
 
     fun sendText(to: String, message: String) =
         postForLocation("/sendText", SendTextDTO(to, message))
@@ -58,7 +62,14 @@ class WAIntegration(
         body: Any,
         responseType: ParameterizedTypeReference<R>
     ): T? {
-        val request = RequestEntity.post("$baseUrl$path").body(ArgsDTO(body))
+        val headers = HttpHeaders().apply {
+            add("api_key", apiKey)
+        }
+
+        val request = RequestEntity.post("$baseUrl$path")
+            .headers(headers)
+            .body(ArgsDTO(body))
+
         return restTemplate.exchange(request, responseType).body?.response
     }
 }
