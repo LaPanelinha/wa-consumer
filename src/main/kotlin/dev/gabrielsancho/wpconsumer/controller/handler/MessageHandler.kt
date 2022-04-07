@@ -17,8 +17,10 @@ class MessageHandler(
         val service: WhatsappService
 ) {
     fun handleMessage(message: Message) {
-        if (commandFactory.isCommand(message.text ?: ""))
+        if (commandFactory.isCommand(message.text ?: "")) {
+            service.react(message.id, "\uD83D\uDD95\uD83C\uDFFB")
             handleMessageCommand(message)
+        }
     }
 
     private fun handleMessageCommand(message: Message) {
