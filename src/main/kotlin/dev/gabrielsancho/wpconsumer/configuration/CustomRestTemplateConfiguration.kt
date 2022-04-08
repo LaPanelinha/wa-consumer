@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
 
+
 @Configuration
 class CustomRestTemplateConfiguration {
 
@@ -20,8 +21,7 @@ class CustomRestTemplateConfiguration {
     @Bean
     @Primary
     fun getRestTemplate(builder: RestTemplateBuilder): RestTemplate = builder
-            .setConnectTimeout(Duration.ofMillis(connectionTimeout.toLong()))
-            .setReadTimeout(Duration.ofMillis(readTimout.toLong()))
-            .build()
-
+        .setConnectTimeout(Duration.ofMillis(connectionTimeout.toLong()))
+        .setReadTimeout(Duration.ofMillis(readTimout.toLong()))
+        .build()
 }

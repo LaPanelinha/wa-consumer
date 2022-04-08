@@ -30,6 +30,7 @@ class ListCommandsCommand(
         }.toString()
 
         service.sendText(message.from, commandsMessage)
+        service.react(message.id, "\uD83C\uDD98️")
     }
 
     inner class ListCommandsArguments : CommandArguments(commandPrefix, alias)

@@ -21,9 +21,10 @@ class AllCommand(
         val participants = message.chat.groupMetadata?.participants?.joinToString(" ") {
             val number = it.id.replace("@c.us", "")
             return@joinToString "@$number"
-        } ?: return
+        } ?: message.from
 
         service.sendReplyWithMentions(message.chatId, participants, message.id)
+        service.react(message.id, "\uD83D\uDCE3️")
     }
 
     inner class AllArguments : CommandArguments(commandPrefix, alias) {
