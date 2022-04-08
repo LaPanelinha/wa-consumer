@@ -3,6 +3,7 @@ package dev.gabrielsancho.wpconsumer.integration
 import dev.gabrielsancho.wpconsumer.domain.Message
 import dev.gabrielsancho.wpconsumer.domain.StickerMetadata
 import dev.gabrielsancho.wpconsumer.dto.whatsapp.*
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
@@ -11,11 +12,14 @@ import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
+import java.util.concurrent.CompletableFuture
 
 @Component
 class WAIntegration(
     private val restTemplate: RestTemplate
 ) {
+    private val logger = LoggerFactory.getLogger(WAIntegration::class.java)
+
     @Value("\${wa.api.url}")
     lateinit var baseUrl: String
 
@@ -64,22 +68,31 @@ class WAIntegration(
     fun simulateTyping(simulateTypingDTO: SimulateTypingDTO) =
         postForLocation("/simulateTyping", simulateTypingDTO)
 
-    private fun postForLocation(path: String, body: Any) {
+    fun postForLocation(path: String, body: Any): CompletableFuture<*> {
+        logger.info("Sending[$path]: $body")
         val requestEntity = HttpEntity(ArgsDTO(body), httpHeaders)
+
         restTemplate.postForLocation("$baseUrl$path", requestEntity)
+
+        return CompletableFuture.completedFuture(null)
     }
 
-    private fun <R : ResponseDTO<T>, T> postForObject(
+    fun <R : ResponseDTO<T>, T> postForObject(
         path: String,
         body: Any,
         responseType: ParameterizedTypeReference<R>
-    ): T? {
+    ): CompletableFuture<T?> {
+        logger.info("Sending[$path]: $body")
+
+        println("Sending: $path")
         val request = RequestEntity
             .post("$baseUrl$path")
             .headers(httpHeaders)
             .body(ArgsDTO(body))
 
-        return restTemplate.exchange(request, responseType).body?.response
+        val response = restTemplate.exchange(request, responseType).body?.response
+
+        return CompletableFuture.completedFuture(response)
     }
 }
 
