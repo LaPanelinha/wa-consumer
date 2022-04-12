@@ -41,7 +41,7 @@ class MessageHandler(
         }
     }
 
-    private fun logCommand(command: Command<*>, message: Message) {
+    private fun logCommand(command: Command, message: Message) {
         logger.info("${command.alias}[${message.from}]: \"${message.text}\"")
     }
 }

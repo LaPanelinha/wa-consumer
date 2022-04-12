@@ -16,11 +16,11 @@ import java.net.URL
 class StickerCommand(
     @Value("\${wa.command.prefix}") val commandPrefix: String,
     private val service: WhatsappService
-) : Command<StickerCommand.StickerArguments>() {
+) : Command() {
     override val alias = CommandAlias.STICKER_COMMAND
 
     override fun execute(message: Message) {
-        val args = StickerArguments().apply { loadArguments(message.text) }
+        val args = StickerArguments(message.text)
 
         val url = args.url
         val metadata = metadataFromArgs(args)
@@ -32,11 +32,9 @@ class StickerCommand(
                 sendMediaSticker(message.from, message, metadata)
             }
             MessageType.TEXT -> {
-                if (hasQuotedMedia(message))
-                    sendMediaSticker(message.from, message.quotedMsgObj!!, metadata)
+                if (hasQuotedMedia(message)) sendMediaSticker(message.from, message.quotedMsgObj!!, metadata)
 
-                if (url != null)
-                    sendUrlSticker(message.from, url, metadata)
+                if (url != null) sendUrlSticker(message.from, url, metadata)
             }
             else -> Unit
         }
@@ -45,15 +43,12 @@ class StickerCommand(
     private fun sendMediaSticker(to: String, message: Message, metadata: StickerMetadata) {
         val body = service.decryptMedia(message.id).get() ?: message.body
 
-        if (message.type == MessageType.VIDEO)
-            service.sendMp4AsSticker(to, body, metadata)
-        if (message.type == MessageType.IMAGE)
-            service.sendImageAsSticker(to, body, metadata)
+        if (message.type == MessageType.VIDEO) service.sendMp4AsSticker(to, body, metadata)
+        if (message.type == MessageType.IMAGE) service.sendImageAsSticker(to, body, metadata)
     }
 
     private fun sendUrlSticker(to: String, url: String, metadata: StickerMetadata) {
-        if (isValidUrl(url))
-            service.sendStickerFromUrl(to, url, metadata)
+        if (isValidUrl(url)) service.sendStickerFromUrl(to, url, metadata)
     }
 
     private fun isValidUrl(str: String?) = try {
@@ -64,19 +59,13 @@ class StickerCommand(
     }
 
     private fun hasQuotedMedia(message: Message) =
-        message.quotedMsgObj != null &&
-                (message.quotedMsgObj?.type == MessageType.IMAGE ||
-                        message.quotedMsgObj?.type == MessageType.VIDEO)
+        message.quotedMsgObj != null && (message.quotedMsgObj?.type == MessageType.IMAGE || message.quotedMsgObj?.type == MessageType.VIDEO)
 
     private fun metadataFromArgs(args: StickerCommand.StickerArguments) = StickerMetadata(
-        args.author,
-        CropPosition.fromString(args.cropPosition),
-        args.keepScale,
-        args.pack,
-        args.circle
+        args.author, CropPosition.fromString(args.cropPosition), args.keepScale, args.pack, args.circle
     )
 
-    inner class StickerArguments : CommandArguments(commandPrefix, alias) {
+    inner class StickerArguments(arguments: String?) : CommandArguments(commandPrefix, alias, arguments) {
         @Parameter(description = "Url da imagem")
         var url: String? = null
 

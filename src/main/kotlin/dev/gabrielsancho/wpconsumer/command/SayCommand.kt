@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class SayCommand(
     @Value("\${wa.command.prefix}") val commandPrefix: String,
     private val service: WhatsappService
-) : Command<SayCommand.SayArguments>() {
+) : Command() {
 
     override val alias = CommandAlias.SAY_COMMAND
 
@@ -25,7 +25,7 @@ class SayCommand(
     )
 
     override fun execute(message: Message) {
-        val args = SayArguments().apply { loadArguments(message.text) }
+        val args = SayArguments(message.text)
 
         val argsText = args.text.joinToString(" ")
 
@@ -33,7 +33,7 @@ class SayCommand(
         service.react(message.id, "\uD83D\uDDE3️")
     }
 
-    inner class SayArguments : CommandArguments(commandPrefix, alias) {
+    inner class SayArguments(arguments: String?) : CommandArguments(commandPrefix, alias, arguments) {
 
         @Parameter(description = "Texto a ser repetido")
         var text: MutableList<String> = mutableListOf()
