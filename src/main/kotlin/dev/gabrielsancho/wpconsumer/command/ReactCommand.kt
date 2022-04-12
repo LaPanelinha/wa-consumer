@@ -11,17 +11,17 @@ import org.springframework.stereotype.Component
 class ReactCommand(
     @Value("\${wa.command.prefix}") val commandPrefix: String,
     val service: WhatsappService
-) : Command<ReactCommand.ReactArguments>() {
-    override val alias = CommandAlias.REACT_COMMAND
+) {
+    val alias = CommandAlias.REACT_COMMAND
 
 
-    override fun execute(message: Message) {
-        val args = ReactArguments().apply { loadArguments(message.text) }
+    fun execute(message: Message) {
+        val args = ReactArguments(message.text)
 
         service.react(message.quotedMsg?.id ?: message.id, args.emoji ?: return)
     }
 
-    inner class ReactArguments : CommandArguments(commandPrefix, alias) {
+    inner class ReactArguments(arguments: String?) : CommandArguments(commandPrefix, alias, arguments) {
 
         @Parameter(description = "Emoji pra reagir")
         var emoji: String? = null

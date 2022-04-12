@@ -7,12 +7,12 @@ import javax.annotation.PostConstruct
 
 @Component
 class CommandFactory(
-        private val commands: List<Command<*>>
+    private val commands: List<Command>
 ) {
     @Value("\${wa.command.prefix}")
     lateinit var commandPrefix: String
 
-    val commandAliasesCache = mutableMapOf<String, Command<*>>()
+    val commandAliasesCache = mutableMapOf<String, Command>()
 
     @PostConstruct
     fun initCommandCache() {
@@ -23,7 +23,7 @@ class CommandFactory(
         }
     }
 
-    fun getCommand(text: String): Command<*> {
+    fun getCommand(text: String): Command {
         val alias = getAliasFromText(text)
         return commandAliasesCache.getOrElse(alias) { throw CommandNotFoundException() }
     }
@@ -35,6 +35,6 @@ class CommandFactory(
     }
 
     fun isCommand(text: String) =
-            text.startsWith(commandPrefix) &&
-                    text.removePrefix(commandPrefix).getOrElse(0) { ' ' } != ' '
+        text.startsWith(commandPrefix) &&
+                text.removePrefix(commandPrefix).getOrElse(0) { ' ' } != ' '
 }
