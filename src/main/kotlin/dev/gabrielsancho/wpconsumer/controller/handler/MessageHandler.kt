@@ -28,19 +28,30 @@ class MessageHandler(
 
     private fun handleMessageCommand(message: Message) {
         try {
-            val command = commandFactory.getCommand(message.text ?: return)
-
-            logCommand(command, message)
-            command.execute(message)
+            executeCommand(message)
         } catch (ex: HelpRequestedException) {
-            if (message.type == MessageType.BUTTONS_RESPONSE)
-                service.sendText(message.from, ex.help.toString(WaFormat.MONOSPACE))
-            service.reply(message.from, message.id, ex.help.toString(WaFormat.MONOSPACE))
+            handleHelpRequestException(message, ex)
         } catch (ex: CommandNotFoundException) {
-            service.react(message.id, "❔")
+            handleCommandNotFoundException(message)
         }
     }
 
+    private fun executeCommand(message: Message) {
+        val command = commandFactory.getCommand(message.text ?: return)
+
+        logCommand(command, message)
+        command.execute(message)
+    }
+
+    private fun handleHelpRequestException(message: Message, ex: HelpRequestedException) {
+        if (message.type == MessageType.BUTTONS_RESPONSE)
+            service.sendText(message.from, ex.help.toString(WaFormat.MONOSPACE))
+        service.reply(message.from, message.id, ex.help.toString(WaFormat.MONOSPACE))
+    }
+
+    private fun handleCommandNotFoundException(message: Message) {
+        service.react(message.id, "❔")
+    }
     private fun logCommand(command: Command, message: Message) {
         logger.info("${command.alias}[${message.from}]: \"${message.text}\"")
     }
