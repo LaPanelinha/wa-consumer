@@ -52,7 +52,6 @@ class MessageHandler(
     private fun handleCommandNotFoundException(message: Message) {
         service.react(message.id, "❔")
     }
-
     private fun logCommand(command: Command, message: Message) {
         logger.info("${command.alias}[${message.from}]: \"${message.text}\"")
     }
